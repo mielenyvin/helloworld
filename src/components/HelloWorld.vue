@@ -8,8 +8,11 @@
         <option v-for="planId in planIds" :key="planId.empno">{{  planId.NUMID }}</option>
       </select>
 
-
+   
       <ul v-if="apexData.features && apexData.features.length">
+
+        Number of entries: <span v-if="apexData.features">{{ apexData.features.length }}</span><br><br>
+
         <li style="display: block; margin-bottom: 20px;" v-for="feature in apexData.features" :key="feature.numid">
           <b>numid:</b> {{ feature.numid }},<br>
           <b>SYMBID:</b> {{ feature.properties.SYMBID }},<br>
