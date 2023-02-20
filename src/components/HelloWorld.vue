@@ -1,7 +1,7 @@
 <template>
   <div class="hello">
 
-    <h1>Duct Points</h1>
+    <h1>Duct Points List</h1>
 
     <select @change="getDuctPointData" v-model="selectedPlanning" >
         <option value="">Select Planning</option>
