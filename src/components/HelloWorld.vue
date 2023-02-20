@@ -1,17 +1,23 @@
 <template>
   <div class="hello">
-    <h1>DUCT POINTS</h1>
 
-    Number of entries: <span v-if="apexData.features">{{ apexData.features.length }}</span>
+    <h1>Duct Points</h1>
 
-    <ul v-if="apexData.features && apexData.features.length">
-      <li style="display: block; margin-bottom: 20px;" v-for="feature in apexData.features" :key="feature.numid">
-        <b>numid:</b> {{ feature.numid }},<br>
-        <b>SYMBID:</b> {{ feature.properties.SYMBID }},<br>
-      <b>USERCHANGED:</b> {{ feature.properties.USERCHANGED }} 
-      </li>
-    </ul>
-    <p v-else>Loading...</p>
+    <select @change="getDuctPointData" v-model="selectedPlanning" >
+        <option value="">Select Planning</option>
+        <option v-for="planId in planIds" :key="planId.empno">{{  planId.NUMID }}</option>
+      </select>
+
+
+      <ul v-if="apexData.features && apexData.features.length">
+        <li style="display: block; margin-bottom: 20px;" v-for="feature in apexData.features" :key="feature.numid">
+          <b>numid:</b> {{ feature.numid }},<br>
+          <b>SYMBID:</b> {{ feature.properties.SYMBID }},<br>
+        <b>USERCHANGED:</b> {{ feature.properties.USERCHANGED }} 
+        </li>
+      </ul>
+      <p v-else>Please choose from above</p>
+
   </div>
 </template>
 <script>
@@ -24,26 +30,43 @@ export default {
   data() {
     return {
       apexData: {},
+      selectedPlanning: '',
+      planIds: []
     }
   },
+
+  methods: {
+      getDuctPointData() {
+        if (this.selectedPlanning) {
+        axios.get(`https://g0268f6dc90ba0e-devdb.adb.eu-frankfurt-1.oraclecloudapps.com/ords/nw_fixedaccess_demo/v1/planning/D_DUCT_POINT?id=${this.selectedPlanning}`)
+          .then(response => {
+            this.apexData = response.data;
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      } else {
+        this.apexData = ""
+      }
+    }
+    },
+  
+
   mounted() {
-
-    axios
-      .get(
-        "https://g0268f6dc90ba0e-devdb.adb.eu-frankfurt-1.oraclecloudapps.com/ords/nw_fixedaccess_demo/v1/planning/D_DUCT_POINT?id=10300000000008171"
-      )
-      .then((res) => {
-        this.apexData = res.data;
+    axios.get('https://g0268f6dc90ba0e-devdb.adb.eu-frankfurt-1.oraclecloudapps.com/ords/nw_fixedaccess_demo/v1/planning/GETALLPLANNINGS')
+      .then(response => {
+        this.planIds = response.data; // assuming the response data is an object with an "items" property that contains the array of employees
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(error => {
+        console.error(error);
       });
+  },
 
-  }
 
 }
 </script>
-<!-- "scoped" attribute to limit CSS to this component only -->
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h3 {
   margin: 40px 0 0;
