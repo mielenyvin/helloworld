@@ -1,20 +1,17 @@
 <template>
   <div id="app">
     <!-- <img alt="Vue logo" src="./assets/logo.png"> -->
-    <!-- <Employees/> -->
-    <HelloWorld msg="APEX VUE"/>
+    <Ducts msg="Duct Points Management"/>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-// import Employees from './components/Employees.vue'
+import Ducts from './components/Ducts.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld,
-    // Employees
+    Ducts
   }
 }
 </script>

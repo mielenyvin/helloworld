@@ -1,7 +1,7 @@
 <template>
   <div class="hello">
 
-    <h1>Duct Points List</h1>
+    <h1> {{ msg }}</h1>
 
     <select @change="getDuctPointData" v-model="selectedPlanning" >
         <option value="">Select Planning</option>
@@ -16,17 +16,20 @@
         <li style="display: block; margin-bottom: 20px;" v-for="feature in apexData.features" :key="feature.numid">
           <b>numid:</b> {{ feature.numid }},<br>
           <b>SYMBID:</b> {{ feature.properties.SYMBID }},<br>
-        <b>USERCHANGED:</b> {{ feature.properties.USERCHANGED }} 
+          <b>USERCHANGED:</b> {{ feature.properties.USERCHANGED }} <br>
+          <b>lat</b> {{ feature.geometry.coordinates[0] }}<br>
+          <b>long</b> {{feature.geometry.coordinates[1]  }}
         </li>
       </ul>
       <p v-else>Please choose from above</p>
 
+      
   </div>
 </template>
 <script>
 import axios from 'axios'; // import the axios library
 export default {
-  name: 'HelloWorld',
+  name: 'DuctList',
   props: {
     msg: String
   },
@@ -34,7 +37,7 @@ export default {
     return {
       apexData: {},
       selectedPlanning: '',
-      planIds: []
+      planIds: [],
     }
   },
 
