@@ -101,6 +101,7 @@ export default {
           })
           .catch(error => {
             console.log(error);
+            this.onlineStatus = "Offline work" 
           });
 
       } else {
@@ -170,6 +171,8 @@ export default {
       })
       .catch(error => {
         console.error(error);
+        // #TODO: tut nado poimat oshibku not internet
+        this.onlineStatus = "Offline work" 
       });
    
     }
