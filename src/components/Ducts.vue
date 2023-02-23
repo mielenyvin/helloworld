@@ -83,13 +83,13 @@ export default {
 
   computed: {
     buttonOnlineText() {
-      return this.onlineStatus === "Online work" ? "Go Offline" : "Go Online";
+      return this.onlineStatus === "Online work" ? "Go Offline" : "Synchronize and go Online";
     }
   },
 
   methods: {
     getDuctPoints() {
-      if (this.selectedDuctId) {
+        if (this.selectedDuctId) {
         axios.get(`
         https://g0268f6dc90ba0e-devdb.adb.eu-frankfurt-1.oraclecloudapps.com/ords/apex_dmitrii/ducts/one?DUCT_ID=${this.selectedDuctId}`)
           .then(response => {
@@ -149,7 +149,8 @@ export default {
 
     switchOnOffline(){
       if (this.onlineStatus == "Offline work") {
-        this.onlineStatus = "Online work"
+        this.fetchData()
+        
       }
       else
       this.onlineStatus = "Offline work"
@@ -161,14 +162,16 @@ export default {
       .then(response => {
         this.ducts = response.data.items; // assuming the response data is an object with an "items" property that contains the array of employees
         this.ductIdNew = (this.ducts[this.ducts.length-1].duct_id +1)
+        this.companyNameNew = '',
+      this.ductLatNew = '',
+      this.ductLongNew = '',
+      this.ductIdNew = (this.ducts[this.ducts.length-1].duct_id +1)
+      this.onlineStatus = "Online work"
       })
       .catch(error => {
         console.error(error);
       });
-      this.companyNameNew = '',
-      this.ductLatNew = '',
-      this.ductLongNew = '',
-      this.ductIdNew = (this.ducts[this.ducts.length-1].duct_id +1)
+   
     }
 
   },
