@@ -101,8 +101,7 @@ export default {
           })
           .catch(error => {
             console.log(error);
-           // #TODO: tut nado poimat oshibku not internet
-           this.switchOnOffline()
+            this.onlineStatus = "Offline work" 
           });
 
       } else {
@@ -127,8 +126,6 @@ export default {
         .catch(error => {
           // handle any errors
           console.log(error);
-         // #TODO: tut nado poimat oshibku not internet
-         this.switchOnOffline()
         });
     },
 
@@ -148,8 +145,6 @@ export default {
         .catch(error => {
           // handle any errors
           console.log(error);
-         // #TODO: tut nado poimat oshibku not internet
-         this.switchOnOffline()
         });
     },
 
@@ -177,7 +172,7 @@ export default {
       .catch(error => {
         console.error(error);
         // #TODO: tut nado poimat oshibku not internet
-        this.switchOnOffline()
+        this.onlineStatus = "Offline work" 
       });
    
     }
@@ -198,8 +193,7 @@ export default {
         })
         .catch(error => {
           console.error(error);
-          // #TODO: tut nado poimat oshibku not internet
-          this.switchOnOffline()
+          this.onlineStatus = "Offline work"
         });
     } else {
       this.onlineStatus = "Offline work"
