@@ -1,4 +1,7 @@
-<template><!-- #TODO - to create offline DUCTS with id 555prefix. then when go online check if they are exist -->
+<template>
+  <!-- #TODO - to create offline DUCTS with id 555prefix. then when go online check if they are exist -->
+  <!-- #TODO - check if data was really updated -->
+
   <div class="hello">
 
     <h1>{{ msg }}</h1>
@@ -7,7 +10,9 @@
     <button @click="switchOnOffline()" style="margin-left:10px"> {{ buttonOnlineText }} </button>
 
     <h2>Get or update the ducts</h2>
+    <span><b>All ducts:</b></span>
     {{ ducts }} <br><br>
+    <span><b>IDs of ducts updated in offline mode:</b></span>{{ editedOfflineDuctIds }} <br><br>
 
     <!-- <select @change="getDuctPointData" v-model="selectedDuctId" > -->
     <select @change="getDuctPoints" v-model="selectedDuctId">
@@ -18,7 +23,7 @@
     <div v-if="ducts.length || apexData.items" style="text-align: center; margin-top: 20px;">
 
 
-      <form method="post" style="width:300px; margin: 0 auto; text-align: left" @submit.prevent="updateDucts">
+      <form method="post" style="width:300px; margin: 0 auto; text-align: left" @submit.prevent="updateDuct">
         <label for="company_name">Company name </label>
         <input id="company_name" type="text" name="company_name" v-model="companyName" /><br><br>
         <label for="duct_lat">Latitude </label>
@@ -76,6 +81,7 @@ export default {
       ductLongNew: '',
       ductIdNew: 0,
       onlineStatus: "Offline work",
+      editedOfflineDuctIds: []
     }
   },
 
@@ -86,45 +92,40 @@ export default {
   },
 
   methods: {
-
-    
-    
     getDuctPoints() {
-      if (this.onlineStatus === "Offline work") 
-     {
-    
-      if (this.selectedDuctId) {
-    this.ductId = this.selectedDuctId;
-    this.companyName = this.ducts[this.selectedDuctId-1].company_name;
-    this.ductLat = this.ducts[this.selectedDuctId-1].duct_lat;
-    this.ductLong = this.ducts[this.selectedDuctId-1].duct_long;
-    }
-      
+      if (this.onlineStatus === "Offline work") {
 
-    }
-    else
-      {
-      if (this.selectedDuctId) {
+        if (this.selectedDuctId) {
+          this.ductId = this.selectedDuctId;
+          this.companyName = this.ducts[this.selectedDuctId - 1].company_name;
+          this.ductLat = this.ducts[this.selectedDuctId - 1].duct_lat;
+          this.ductLong = this.ducts[this.selectedDuctId - 1].duct_long;
+        }
+
+
+      }
+      else {
+        if (this.selectedDuctId) {
           axios.get(`
         https://g0268f6dc90ba0e-devdb.adb.eu-frankfurt-1.oraclecloudapps.com/ords/apex_dmitrii/ducts/one?DUCT_ID=${this.selectedDuctId}`)
-          .then(response => {
-            this.apexData = response.data;
-            this.companyName = this.apexData.items[0].company_name;
-            this.ductLat = this.apexData.items[0].duct_lat;
-            this.ductLong = this.apexData.items[0].duct_long;
-            this.ductId = this.selectedDuctId;
-          })
-          .catch(error => {
-            console.log(error);
-            this.onlineStatus = "Offline work" 
-          });
+            .then(response => {
+              this.apexData = response.data;
+              this.companyName = this.apexData.items[0].company_name;
+              this.ductLat = this.apexData.items[0].duct_lat;
+              this.ductLong = this.apexData.items[0].duct_long;
+              this.ductId = this.selectedDuctId;
+            })
+            .catch(error => {
+              console.log(error);
+              this.onlineStatus = "Offline work"
+            });
 
-      } else {
-        this.apexData = ""
+        } else {
+          this.apexData = ""
+        }
+
       }
 
-    }
-  
 
     },
 
@@ -148,33 +149,92 @@ export default {
         });
     },
 
-    updateDucts() {
-      const data = {
-        COMPANY_NAME: this.companyName,
-        DUCT_LAT: this.ductLat,
-        DUCT_LONG: this.ductLong,
-        DUCT_ID: this.ductId,
-      };
-      // make a POST request to the server with the form data
-      axios.post('https://g0268f6dc90ba0e-devdb.adb.eu-frankfurt-1.oraclecloudapps.com/ords/apex_dmitrii/ducts/update', data)
-        .then(response => {
-          // handle the response as needed
-          console.log(response);
-        })
-        .catch(error => {
-          // handle any errors
-          console.log(error);
-        });
+    updateDuct() {
+      if (this.onlineStatus === "Offline work") {
+      
+        if (this.editedOfflineDuctIds.indexOf(parseInt(this.selectedDuctId)) === -1) {
+          this.editedOfflineDuctIds.push(parseInt(this.selectedDuctId));
+}
+      }
+      else { 
+        // Online request to database
+        this.sendDataToServer(this.companyName, this.ductLat, this.ductLong, this.ductId)
+      }
+      // Here we need to update the duct[] data whether for offline or online.
+
+      // eslint-disable-next-line
+var updatedItem = {
+  "duct_id": this.ductId,
+  "company_name": this.companyName,
+  "duct_lat": this.ductLat,
+  "duct_long": this.ductLong
+};
+
+ // eslint-disable-next-line
+const updatedDuct = { duct_id: 1, company_name: "New Company Name" };
+
+const index = this.ducts.findIndex((item) => item.duct_id == updatedItem.duct_id);
+if (index !== -1) {
+  // Use $set to update the company_name of the element at the index
+  this.$set(this.ducts[index], "company_name", updatedItem.company_name);
+  this.$set(this.ducts[index], "duct_lat", parseFloat(updatedItem.duct_lat));
+  this.$set(this.ducts[index], "duct_long", parseFloat(updatedItem.duct_long));
+}
+
+
     },
+
+    sendDataToServer(companyName, ductLat, ductLong, ductId) {
+      
+      alert(companyName)
+      alert(ductLat)
+      alert(ductLong)
+      alert(ductId)
+
+          // Online request to database
+          const data = {
+            COMPANY_NAME: companyName,
+            DUCT_LAT: parseFloat(ductLat),
+            DUCT_LONG: parseFloat(ductLong),
+            DUCT_ID: parseInt(ductId)
+          };
+  
+
+        // make a POST request to the server with the form data
+        axios.post('https://g0268f6dc90ba0e-devdb.adb.eu-frankfurt-1.oraclecloudapps.com/ords/apex_dmitrii/ducts/update', data)
+          .then(response => {
+            console.log(response);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+
+        },
 
     switchOnOffline() {
       if (this.onlineStatus == "Offline work") {
-        this.fetchData()
+// if we were offline, we need to 
+// 1) sent updated data on the server (if there is) 
 
+const editedDuctIds = this.editedOfflineDuctIds.map(id => parseInt(id));
+
+// Filter the ducts array to only include items with duct IDs that are in the editedDuctIds array
+const ductsToUpdate = this.ducts.filter(item => editedDuctIds.includes(item.duct_id));
+
+// For each item in ductsToUpdate, call the sendDataToServer method with the relevant data
+ductsToUpdate.forEach(item => {
+  this.sendDataToServer(item.company_name, item.duct_lat, item.duct_long, item.duct_id);
+});
+
+// editedOfflineDuctIds
+// this.sendDataToServer(this.companyName, this.ductLat, this.ductLong, this.ductId)
+
+// 2) fetch the last data from the server
+        this.fetchData()
       }
       else
+// if we were online, just switch the var
         this.onlineStatus = "Offline work"
-
     },
 
     fetchData() {
@@ -202,8 +262,8 @@ export default {
   mounted() {
     const confirmLoad = confirm("Do you want to try to load information from the server?");
     if (confirmLoad) {
-    // // eslint-disable-next-line
-    // if (1 == 1) {
+      // // eslint-disable-next-line
+      // if (1 == 1) {
       this.onlineStatus = "Online work"
       axios.get('https://g0268f6dc90ba0e-devdb.adb.eu-frankfurt-1.oraclecloudapps.com/ords/apex_dmitrii/ducts/info')
         .then(response => {
