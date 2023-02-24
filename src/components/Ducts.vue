@@ -4,7 +4,7 @@
 
   <div class="hello">
 
-    <h1>{{ msg }} 1.3</h1>
+    <h1>{{ msg }} 1.4</h1>
     <span :class="{ 'text-green': onlineStatus === 'Online work', 'text-red': onlineStatus === 'Offline work' }">{{
       onlineStatus }}</span>
     <button @click="switchOnOffline()" style="margin-left:10px"> {{ buttonOnlineText }} </button>
@@ -12,6 +12,7 @@
     <h2>Get or update the ducts</h2>
     <span><b>All ducts:</b></span>
     {{ ducts }} <br><br>
+       
     <span><b>IDs of ducts updated in offline mode:</b></span>{{ editedOfflineDuctIds }} <br><br>
 
     <!-- <select @change="getDuctPointData" v-model="selectedDuctId" > -->
@@ -81,7 +82,8 @@ export default {
       ductLongNew: '',
       ductIdNew: 0,
       onlineStatus: "Offline work",
-      editedOfflineDuctIds: []
+      editedOfflineDuctIds: [],
+      
     }
   },
 
@@ -263,19 +265,29 @@ export default {
     }
 
   },
+  watch: {
+    ducts(newDucts) {
+    localStorage.setItem('ducts', JSON.stringify(newDucts));
+  }
+  },
 
+ mounted() {
 
-  mounted() {
+  const savedDucts = localStorage.getItem('ducts');
+  if (savedDucts) {
+    this.ducts = JSON.parse(savedDucts);
+  }
     // const confirmLoad = confirm("Do you want to try to load information from the server?");
     // if (confirmLoad) {
     // eslint-disable-next-line
-    if (this.ducts.length <=0) {
-      alert('a')
+    if (0 == 1) {
+      alert('New data uploaded')
       axios.get('https://g0268f6dc90ba0e-devdb.adb.eu-frankfurt-1.oraclecloudapps.com/ords/apex_dmitrii/ducts/info')
         .then(response => {
           this.ducts = response.data.items; // assuming the response data is an object with an "items" property that contains the array of employees
           this.ductIdNew = (this.ducts[this.ducts.length - 1].duct_id + 1)
           this.onlineStatus = "Online work"
+          localStorage.storedData = this.ducts;
         })
         .catch(error => {
           console.error(error);
