@@ -151,14 +151,14 @@ export default {
 
     updateDuct() {
       if (this.onlineStatus === "Offline work") {
-      
+      // if offline, add ID of updated duct
         if (this.editedOfflineDuctIds.indexOf(parseInt(this.selectedDuctId)) === -1) {
           this.editedOfflineDuctIds.push(parseInt(this.selectedDuctId));
 }
       }
       else { 
-        // Online request to database
-        this.sendDataToServer(this.companyName, this.ductLat, this.ductLong, this.ductId)
+        // if online, send request to database with new data
+        this.sendDataToServer(parseInt(this.ductId), this.companyName, parseFloat(this.ductLat), parseFloat(this.ductLong))
       }
       // Here we need to update the duct[] data whether for offline or online.
 
@@ -171,7 +171,6 @@ var updatedItem = {
 };
 
  // eslint-disable-next-line
-const updatedDuct = { duct_id: 1, company_name: "New Company Name" };
 
 const index = this.ducts.findIndex((item) => item.duct_id == updatedItem.duct_id);
 if (index !== -1) {
@@ -181,28 +180,23 @@ if (index !== -1) {
   this.$set(this.ducts[index], "duct_long", parseFloat(updatedItem.duct_long));
 }
 
-
     },
 
-    sendDataToServer(companyName, ductLat, ductLong, ductId) {
+    sendDataToServer(ductId, companyName, ductLat, ductLong) {
       
-      alert(companyName)
-      alert(ductLat)
-      alert(ductLong)
-      alert(ductId)
-
           // Online request to database
           const data = {
+            DUCT_ID: parseInt(ductId),
             COMPANY_NAME: companyName,
             DUCT_LAT: parseFloat(ductLat),
-            DUCT_LONG: parseFloat(ductLong),
-            DUCT_ID: parseInt(ductId)
+            DUCT_LONG: parseFloat(ductLong)
           };
   
 
         // make a POST request to the server with the form data
         axios.post('https://g0268f6dc90ba0e-devdb.adb.eu-frankfurt-1.oraclecloudapps.com/ords/apex_dmitrii/ducts/update', data)
           .then(response => {
+            this.fetchData();
             console.log(response);
           })
           .catch(error => {
@@ -219,18 +213,22 @@ if (index !== -1) {
 const editedDuctIds = this.editedOfflineDuctIds.map(id => parseInt(id));
 
 // Filter the ducts array to only include items with duct IDs that are in the editedDuctIds array
+
 const ductsToUpdate = this.ducts.filter(item => editedDuctIds.includes(item.duct_id));
 
-// For each item in ductsToUpdate, call the sendDataToServer method with the relevant data
-ductsToUpdate.forEach(item => {
-  this.sendDataToServer(item.company_name, item.duct_lat, item.duct_long, item.duct_id);
+Promise.all(ductsToUpdate.map(item => {
+  return this.sendDataToServer(parseInt(item.duct_id), item.company_name, parseFloat(item.duct_lat), parseFloat(item.duct_long));
+})).then(() => {
+  this.editedOfflineDuctIds.splice(0);
+
+}).then(() => {
+
+  this.onlineStatus = "Online work"
+  // do something else if needed
 });
 
-// editedOfflineDuctIds
-// this.sendDataToServer(this.companyName, this.ductLat, this.ductLong, this.ductId)
 
-// 2) fetch the last data from the server
-        this.fetchData()
+
       }
       else
 // if we were online, just switch the var
@@ -246,12 +244,12 @@ ductsToUpdate.forEach(item => {
             this.ductLatNew = '',
             this.ductLongNew = '',
             this.ductIdNew = (this.ducts[this.ducts.length - 1].duct_id + 1)
-          this.onlineStatus = "Online work"
+          // this.onlineStatus = "Online work"
         })
         .catch(error => {
           console.error(error);
           // #TODO: tut nado poimat oshibku not internet
-          this.onlineStatus = "Offline work"
+          // this.onlineStatus = "Offline work"
         });
 
     }
