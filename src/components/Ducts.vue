@@ -4,7 +4,7 @@
 
   <div class="hello">
 
-    <h1>{{ msg }} 1.1</h1>
+    <h1>{{ msg }} 1.2</h1>
     <span :class="{ 'text-green': onlineStatus === 'Online work', 'text-red': onlineStatus === 'Offline work' }">{{
       onlineStatus }}</span>
     <button @click="switchOnOffline()" style="margin-left:10px"> {{ buttonOnlineText }} </button>
