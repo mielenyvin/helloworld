@@ -269,7 +269,7 @@ export default {
     // const confirmLoad = confirm("Do you want to try to load information from the server?");
     // if (confirmLoad) {
     // eslint-disable-next-line
-    if (1 == 1) {
+    if (this.ducts.length < 0) {
 
       axios.get('https://g0268f6dc90ba0e-devdb.adb.eu-frankfurt-1.oraclecloudapps.com/ords/apex_dmitrii/ducts/info')
         .then(response => {
